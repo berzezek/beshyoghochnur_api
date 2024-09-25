@@ -1,5 +1,0 @@
-[client]
-database = beshyogochnur
-user = beshyogochnur
-password = some_pass
-default-character-set = utf8
