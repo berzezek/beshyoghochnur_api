@@ -1,14 +1,18 @@
 from rest_framework import serializers
 from catalog.models import Category, Product
 
-
-class ProductSerializer(serializers.ModelSerializer):
+class ProductSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ('url', 'name', 'description', 'price', 'image')
+        extra_kwargs = {
+            'url': {'view_name': 'product-detail', 'lookup_field': 'slug'}
+        }
 
-
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('url', 'name')
+        extra_kwargs = {
+            'url': {'view_name': 'category-detail', 'lookup_field': 'slug'}
+        }
