@@ -161,4 +161,6 @@ cython_debug/
 .idea/
 
 database.cnf
-media/images/*.png
+!media/images/.gitkeep
+media/images/*
+static
