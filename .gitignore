@@ -164,3 +164,4 @@ database.cnf
 !media/images/.gitkeep
 media/images/*
 static
+core/wsgi.py
