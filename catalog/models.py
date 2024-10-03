@@ -1,11 +1,12 @@
 from django.db import models
 from django.utils.text import slugify
+from django_resized import ResizedImageField
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
-    image = models.ImageField(upload_to='images/')
+    image = ResizedImageField(size=[800, 600], crop=['middle', 'center'], upload_to='images/')
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -20,7 +21,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     description = models.TextField()
-    image = models.ImageField(upload_to='images/')
+    image = ResizedImageField(size=[800, 600], crop=['middle', 'center'], upload_to='images/')
     price = models.FloatField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
