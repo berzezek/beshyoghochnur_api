@@ -35,7 +35,30 @@ DATABASES = {
     }
 }
 
-LANGUAGE_CODE = 'uz'
+PARLER_LANGUAGES = {
+    None: (
+        {'code': 'uz',},
+        {'code': 'ru',},
+        {'code': 'en',},
+    ),
+    'default': {
+        'fallbacks': ['uz'],          # defaults to PARLER_DEFAULT_LANGUAGE_CODE
+        'hide_untranslated': False,   # the default; let .active_translations() return fallbacks too.
+    }
+}
+
+PARLER_DEFAULT_LANGUAGE_CODE = 'uz'
+
+LANGUAGE_CODE = 'uz'  # Установите узбекский язык по умолчанию
+
+LANGUAGES = [
+    ('uz', 'Uzbek'),
+    ('ru', 'Russian'),
+    ('en', 'English'),
+]
+
+USE_I18N = True
+USE_L10N = True
 
 TIME_ZONE = 'Asia/Tashkent'
 
@@ -71,11 +94,15 @@ python manage.py createsuperuser
 * Category
 
 ```shell
-/api/v1/category
+/api/v1/category?lang=en
+# en, ru, uz
+# uz - default
 ```
 
 * Product
 
 ```shell
-/api/v1/product
+/api/v1/products?lang=en
+# en, ru, uz 
+# uz - default
 ```

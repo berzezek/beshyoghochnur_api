@@ -166,3 +166,4 @@ media/images/*
 static
 wsgi.py
 .htaccess
+.ssh

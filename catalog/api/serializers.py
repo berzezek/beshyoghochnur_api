@@ -9,6 +9,9 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
             'url': {'view_name': 'product-detail', 'lookup_field': 'slug'}
         }
 
+    def get_queryset(self):
+        return Product.objects.filter(is_active=True)
+
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
@@ -16,3 +19,6 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'url': {'view_name': 'category-detail', 'lookup_field': 'slug'}
         }
+
+    def get_queryset(self):
+        return Category.objects.filter(is_active=True)
