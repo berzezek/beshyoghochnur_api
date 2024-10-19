@@ -23,9 +23,23 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Category.objects.filter(is_active=True).language(self.request.query_params.get('lang', 'uz')).all()
 
-    def retrieve(self, request, slug=None):
+    def retrieve(self, request, *args, **kwargs):
         category = self.get_object()
-        products = Product.objects.filter(category=category, is_active=True).language(request.query_params.get('lang', 'uz'))
-        serializer = ProductSerializer(products, many=True, context={'request': request})
+        products = Product.objects.filter(
+            category=category,
+            is_active=True
+        ).language(request.query_params.get('lang', 'uz'))
+        page = self.paginate_queryset(products)
+        if page is not None:
+            serializer = ProductSerializer(
+                page, 
+                many=True, 
+                context={'request': request}
+            )
+            return self.get_paginated_response(serializer.data)
+        serializer = ProductSerializer(
+            products, 
+            many=True, 
+            context={'request': request}
+        )
         return Response(serializer.data)
-

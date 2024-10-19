@@ -12,7 +12,7 @@ class Category(TranslatableModel):
         name=models.CharField(max_length=100, unique=True),
     )
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
-    image = models.ImageField(upload_to='images/categories/', blank=True, null=True)
+    image = models.ImageField(upload_to='images/categories/', blank=True, null=True, default='images/categories/default.webp')
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -40,7 +40,7 @@ class Product(TranslatableModel):
         description=models.TextField(null=True, blank=True),
     )
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
-    image = models.ImageField(upload_to='images/products/', blank=True, null=True)
+    image = models.ImageField(upload_to='images/products/', blank=True, null=True, default='images/products/default.webp')
     price = models.FloatField()
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
