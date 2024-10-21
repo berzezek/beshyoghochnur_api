@@ -35,26 +35,25 @@ class CategoryAdmin(TranslatableAdmin):
     fields = ('name', 'image', 'is_active', 'slug')
 
     def get_queryset(self, request):
-        # Ограничиваем выборку только уникальными записями на основном языке
         queryset = super().get_queryset(request)
         return queryset.active_translations(settings.LANGUAGE_CODE).distinct()
 
     def image_tag(self, obj):
         if obj.image:
             return format_html('<img src="{}" width="50" height="50" />'.format(obj.image.url))
-        return "Нет изображения"
+        return "Rasm yo'q"
 
-    image_tag.short_description = 'Изображение'
+    image_tag.short_description = 'Rasm'
 
     def make_inactive(self, request, queryset):
         queryset.update(is_active=False)
 
-    make_inactive.short_description = "Сделать неактивными выбранные категории"
+    make_inactive.short_description = "Tanlangan kategoriyalarni faol emas qilib belgilash"
 
     def make_active(self, request, queryset):
         queryset.update(is_active=True)
 
-    make_active.short_description = "Сделать активными выбранные категории"
+    make_active.short_description = "Tanlangan kategoriyalarni faol qilib belgilash"
 
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
@@ -86,7 +85,7 @@ class ProductAdmin(TranslatableAdmin):
     list_filter = ('category', 'is_active')
     ordering = ('translations__name',)
     actions = ['make_inactive', 'make_active']
-    fields = ('name', 'category', 'image', 'price', 'description', 'is_active', 'slug')
+    fields = ('name', 'description', 'category', 'image', 'price', 'is_active', 'slug')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
