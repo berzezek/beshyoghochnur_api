@@ -33,7 +33,7 @@ class Category(TranslatableModel):
             # Сохраняем снова, чтобы обновить slug
             super(Category, self).save(update_fields=['slug'])
 
-    def resize_image(self, image_field, target_size=(640, 360)):
+    def resize_image(self, image_field, target_size=(640, 480)):
         img = Image.open(image_field)
         img = img.convert('RGB')  # Убедитесь, что изображение в формате RGB
 
@@ -110,7 +110,7 @@ class Product(TranslatableModel):
             # Сохраняем снова, чтобы обновить slug
             super(Product, self).save(update_fields=['slug'])
 
-    def resize_image(self, image_field, target_size=(640, 360)):
+    def resize_image(self, image_field, target_size=(640, 480)):
         img = Image.open(image_field)
         img = img.convert('RGB')  # Убедитесь, что изображение в формате RGB
 
