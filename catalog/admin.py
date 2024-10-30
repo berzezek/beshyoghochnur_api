@@ -6,11 +6,21 @@ from django.utils.html import format_html
 from parler.admin import TranslatableAdmin
 from parler.forms import TranslatableModelForm
 
-from .models import Category, Product
+from .models import Category, Product, Manufacturer
 
-# Убираем группы и пользователей из админки, если это необходимо
 admin.site.unregister(Group)
 admin.site.unregister(User)
+
+class ManufacturerAdmin(TranslatableAdmin):
+    list_display = ('name',)
+    search_fields = ('translations__name',)
+    ordering = ('translations__name',)
+
+    def get_queryset(self, request):
+        # Ограничиваем выборку только уникальными записями на основном языке
+        queryset = super().get_queryset(request)
+        return queryset.active_translations(settings.LANGUAGE_CODE).distinct()
+
 
 class CategoryForm(TranslatableModelForm):
 
@@ -65,6 +75,12 @@ class ProductForm(TranslatableModelForm):
         label="Kategoriya"
     )
 
+    manufactures = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        label="Ishlab chiqaruvchi",
+        required=False
+    )
+
     class Meta:
         model = Product
         fields = '__all__'
@@ -80,12 +96,12 @@ class ProductForm(TranslatableModelForm):
 
 class ProductAdmin(TranslatableAdmin):
     form = ProductForm
-    list_display = ('name', 'price', 'category', 'is_active', 'image_tag')
+    list_display = ('name', 'price', 'category', 'manufactures', 'is_active', 'image_tag')
     search_fields = ('translations__name', 'translations__description')
-    list_filter = ('category', 'is_active')
+    list_filter = ('category', 'manufactures', 'is_active')
     ordering = ('translations__name',)
     actions = ['make_inactive', 'make_active']
-    fields = ('name', 'description', 'category', 'image', 'price', 'is_active', 'slug')
+    fields = ('name', 'category', 'manufactures', 'image', 'price', 'description', 'is_active', 'slug')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -115,3 +131,4 @@ class ProductAdmin(TranslatableAdmin):
 # Регистрируем модели с обновленными настройками админки
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
+admin.site.register(Manufacturer, ManufacturerAdmin)

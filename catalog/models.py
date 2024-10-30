@@ -79,6 +79,19 @@ class Category(TranslatableModel):
     def __str__(self):
         return self.safe_translation_getter('name', any_language=True)
 
+class Manufacturer(TranslatableModel):
+    class Meta:
+        verbose_name = "Ishlab chiqaruvchi"
+        verbose_name_plural = "Ishlab chiqaruvchilar"
+
+
+    translations = TranslatedFields(
+        name=models.CharField(max_length=100, unique=True),
+    )
+
+    def __str__(self):
+        return self.safe_translation_getter('name', any_language=True)
+
 
 class Product(TranslatableModel):
     class Meta:
@@ -89,6 +102,7 @@ class Product(TranslatableModel):
         name=models.CharField(max_length=100, unique=True),
         description=models.TextField(null=True, blank=True),
     )
+    manufactures = models.ForeignKey('Manufacturer', on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     image = models.ImageField(upload_to='images/products/', blank=True, null=True, default='images/default.webp')
     price = models.FloatField()

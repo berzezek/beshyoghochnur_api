@@ -1,11 +1,10 @@
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, Subquery, OuterRef
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
-
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from catalog.api.serializers import ProductSerializer, CategorySerializer
-from catalog.models import Product, Category
+from catalog.api.serializers import ProductSerializer, CategorySerializer, ManufacturerSerializer
+from catalog.models import Product, Category, Manufacturer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -17,29 +16,26 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search_query = self.request.query_params.get("search", "")
         lang = self.request.query_params.get("lang", "uz")
+        manufactures_query = self.request.query_params.get("manufactures", "")
+        category_query = self.request.query_params.get("category", "")
+        
         queryset = Product.objects.filter(is_active=True).language(lang)
 
         if search_query:
             queryset = (
                 queryset.filter(
-                    Q(translations__name__icontains=search_query)
-                    | Q(translations__description__icontains=search_query)
+                    Q(translations__name__icontains=search_query) |
+                    Q(translations__description__icontains=search_query)
                 )
                 .annotate(
                     relevance=(
                         Case(
-                            When(
-                                translations__name__icontains=search_query,
-                                then=Value(2),
-                            ),
+                            When(translations__name__icontains=search_query, then=Value(2)),
                             default=Value(0),
                             output_field=IntegerField(),
-                        )
-                        + Case(
-                            When(
-                                translations__description__icontains=search_query,
-                                then=Value(1),
-                            ),
+                        ) +
+                        Case(
+                            When(translations__description__icontains=search_query, then=Value(1)),
                             default=Value(0),
                             output_field=IntegerField(),
                         )
@@ -48,15 +44,15 @@ class ProductViewSet(viewsets.ModelViewSet):
                 .order_by("-relevance")
             )
 
-        # Удаление дубликатов по id
-        unique_results = []
-        seen_ids = set()
-        for product in queryset:
-            if product.id not in seen_ids:
-                unique_results.append(product)
-                seen_ids.add(product.id)
+        if manufactures_query:
+            # Используем аннотацию для фильтрации по связанному имени производителя
+            queryset = queryset.filter(manufactures__translations__name=manufactures_query)
 
-        return unique_results
+        if category_query:
+            queryset = queryset.filter(category__slug=category_query)
+
+        # Удаление дубликатов
+        return queryset.distinct()
 
     def get_object(self):
         product = (
@@ -76,11 +72,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
     def get_queryset(self):
-        return (
-            Category.objects.filter(is_active=True)
-            .language(self.request.query_params.get("lang", "uz"))
-            .all()
-        )
+        return Category.objects.filter(is_active=True).language(self.request.query_params.get("lang", "uz"))
 
     def retrieve(self, request, *args, **kwargs):
         category = self.get_object()
@@ -90,12 +82,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(products)
 
         if page is not None:
-            serializer = ProductSerializer(
-                page, many=True, context={"request": request}
-            )
+            serializer = ProductSerializer(page, many=True, context={"request": request})
             return self.get_paginated_response(serializer.data)
 
-        serializer = ProductSerializer(
-            products, many=True, context={"request": request}
-        )
+        serializer = ProductSerializer(products, many=True, context={"request": request})
         return Response(serializer.data)
+
+
+class ManufacturerViewSet(viewsets.ModelViewSet):
+    queryset = Manufacturer.objects.all()
+    serializer_class = ManufacturerSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    lookup_field = "name"
+
+    def get_queryset(self):
+        return Manufacturer.objects.all().language(self.request.query_params.get("lang", "uz"))
