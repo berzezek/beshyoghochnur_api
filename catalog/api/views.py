@@ -14,8 +14,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
     def get_queryset(self):
-        search_query = self.request.query_params.get("search", "")
         lang = self.request.query_params.get("lang", "uz")
+        search_query = self.request.query_params.get("search", "")
         manufactures_query = self.request.query_params.get("manufactures", "")
         category_query = self.request.query_params.get("category", "")
         
@@ -45,7 +45,6 @@ class ProductViewSet(viewsets.ModelViewSet):
             )
 
         if manufactures_query:
-            # Используем аннотацию для фильтрации по связанному имени производителя
             queryset = queryset.filter(manufactures__translations__name=manufactures_query)
 
         if category_query:
@@ -71,14 +70,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     lookup_field = "slug"
 
+
     def get_queryset(self):
         return Category.objects.filter(is_active=True).language(self.request.query_params.get("lang", "uz"))
 
     def retrieve(self, request, *args, **kwargs):
         category = self.get_object()
-        products = Product.objects.filter(category=category, is_active=True).language(
-            request.query_params.get("lang", "uz")
-        )
+        products = Product.objects.filter(category=category, is_active=True).language(self.request.query_params.get("lang", "uz"))
         page = self.paginate_queryset(products)
 
         if page is not None:
@@ -96,4 +94,14 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
     lookup_field = "name"
 
     def get_queryset(self):
-        return Manufacturer.objects.all().language(self.request.query_params.get("lang", "uz"))
+        # return Manufacturer.objects.all().language(self.request.query_params.get("lang", "uz"))
+        pass
+        # Нужно получить всех производителей, которые есть в продуктах определенной категории
+        category = self.request.query_params.get("category")
+        if not category:
+            return Manufacturer.objects.all().language(self.request.query_params.get("lang", "uz"))
+        return Manufacturer.objects.filter(
+            product__category__slug=category
+        ).distinct().language(self.request.query_params.get("lang", "uz"))
+
+
