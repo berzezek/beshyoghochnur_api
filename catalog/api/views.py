@@ -73,3 +73,19 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     lookup_field = "name"
     pagination_class = None
+
+    def get_queryset(self):
+        lang = self.request.query_params.get("lang", "uz")
+        search_query = self.request.query_params.get("category")
+
+        # Фильтруем по языку, если у вас есть такое поле в модели
+        queryset = Manufacturer.objects.language(lang)
+
+        if search_query:
+            # Фильтрация по категории продукта, если у вас правильно настроена связь
+            queryset = queryset.filter(
+                product__category__slug=search_query
+            ).distinct()
+        
+        return queryset
+
