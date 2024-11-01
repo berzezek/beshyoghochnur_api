@@ -66,6 +66,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = None
     lookup_field = "slug"
 
+    def get_queryset(self):
+        lang = self.request.query_params.get("lang", "uz")
+        queryset = Category.objects.language(lang)
+        return queryset
+
 
 class ManufacturerViewSet(viewsets.ModelViewSet):
     queryset = Manufacturer.objects.all()
