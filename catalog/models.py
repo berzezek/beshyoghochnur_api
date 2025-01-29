@@ -22,15 +22,15 @@ class Category(TranslatableModel):
     thumbnail = models.ImageField(upload_to='images/categories/thumbnails/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-def save(self, *args, **kwargs):
-    if not self.slug:
-        self.slug = slugify(self.safe_translation_getter('name', any_language=True))
-    
-    super(Category, self).save(*args, **kwargs)
-    
-    if self.image and not self.thumbnail:
-        self.thumbnail = resize_image(self.image, (640, 480))
-        super(Category, self).save(update_fields=['thumbnail'])
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.safe_translation_getter('name', any_language=True))
+        
+        super(Category, self).save(*args, **kwargs)
+        
+        if self.image and not self.thumbnail:
+            self.thumbnail = resize_image(self.image, (640, 480))
+            super(Category, self).save(update_fields=['thumbnail'])
 
 
     def __str__(self):
