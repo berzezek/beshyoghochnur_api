@@ -56,7 +56,7 @@ class Product(TranslatableModel):
         verbose_name_plural = 'Mahsulotlar'
 
     translations = TranslatedFields(
-        name=models.CharField(max_length=100, unique=True),
+        name=models.CharField(max_length=100, blank=True, null=True),
         description=models.TextField(null=True, blank=True),
     )
     manufactures = models.ForeignKey('Manufacturer', on_delete=models.CASCADE, null=True, blank=True)
