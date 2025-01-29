@@ -15,27 +15,22 @@ class Category(TranslatableModel):
         verbose_name_plural = "Kategoriyalar"
 
     translations = TranslatedFields(
-        name=models.CharField(max_length=100, unique=True),
+        name=models.CharField(max_length=100),
     )
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     image = models.ImageField(upload_to='images/categories/', blank=True, null=True, default='images/default.webp')
-    thumnail = models.ImageField(upload_to='images/categories/thumbnails/', blank=True, null=True)
+    thumbnail = models.ImageField(upload_to='images/categories/thumbnails/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    def save(self, *args, **kwargs):
-        # Обрезаем изображение перед сохранением
-        if self.image:
-            self.thumbnail = resize_image(self.image, (640, 480))
-        
-        # Сначала сохраняем объект, чтобы получить первичный ключ (ID)
-        super(Category, self).save(*args, **kwargs)
-
-        # После получения ID можно работать с переводами и генерировать slug
-        if not self.slug:
-            name = self.safe_translation_getter('name', any_language=True)
-            self.slug = slugify(name)
-            # Сохраняем снова, чтобы обновить slug
-            super(Category, self).save(update_fields=['slug'])
+def save(self, *args, **kwargs):
+    if not self.slug:
+        self.slug = slugify(self.safe_translation_getter('name', any_language=True))
+    
+    super(Category, self).save(*args, **kwargs)
+    
+    if self.image and not self.thumbnail:
+        self.thumbnail = resize_image(self.image, (640, 480))
+        super(Category, self).save(update_fields=['thumbnail'])
 
 
     def __str__(self):
@@ -71,25 +66,17 @@ class Product(TranslatableModel):
     price = models.FloatField()
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+    pdf = models.FileField(upload_to='pdfs/products/', blank=True, null=True, verbose_name="Инструкция (PDF)")
 
     def save(self, *args, **kwargs):
-        # Обрезаем изображение перед сохранением
-        if self.image:
-            self.thumbnail = resize_image(self.image, (640, 480))
-        
-        # Сначала сохраняем объект, чтобы получить первичный ключ (ID)
-        super(Product, self).save(*args, **kwargs)
-
-        # После получения ID можно работать с переводами и генерировать slug
         if not self.slug:
-            name = self.safe_translation_getter('name', any_language=True)
-            self.slug = slugify(name)
-            # Сохраняем снова, чтобы обновить slug
-            super(Product, self).save(update_fields=['slug'])
+            self.slug = slugify(self.safe_translation_getter('name', any_language=True))
+        
+        super(Product, self).save(*args, **kwargs)  # Сохранение первичного объекта
+        
+        if self.image and not self.thumbnail:
+            self.thumbnail = resize_image(self.image, (640, 480))
+            super(Product, self).save(update_fields=['thumbnail'])  # Обновляем только thumbnail
 
-    
-
-
-
-    def __str__(self):
-        return self.safe_translation_getter('name', any_language=True)
+        def __str__(self):
+            return self.safe_translation_getter('name', any_language=True)

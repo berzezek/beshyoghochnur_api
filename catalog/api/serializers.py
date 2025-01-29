@@ -8,7 +8,7 @@ from catalog.models import Product
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = ('url', 'name', 'image', 'slug')
+        fields = ('url', 'name', 'image', 'thumbnail', 'slug')
         extra_kwargs = {
             'url': {'view_name': 'category-detail', 'lookup_field': 'slug'}
         }
@@ -31,7 +31,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('url', 'name', 'category', 'manufactures', 'slug', 'description', 'price', 'image')
+        fields = ('url', 'name', 'category', 'manufactures', 'slug', 'description', 'price', 'image', 'thumbnail', 'pdf')
         extra_kwargs = {
             'url': {'view_name': 'product-detail', 'lookup_field': 'slug'}
         }

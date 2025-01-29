@@ -101,7 +101,7 @@ class ProductAdmin(TranslatableAdmin):
     list_filter = ('category', 'manufactures', 'is_active')
     ordering = ('translations__name',)
     actions = ['make_inactive', 'make_active']
-    fields = ('name', 'category', 'manufactures', 'image', 'price', 'description', 'is_active', 'slug')
+    fields = ('name', 'category', 'manufactures', 'image', 'price', 'description', 'is_active', 'slug', 'pdf')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
