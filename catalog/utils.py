@@ -1,3 +1,7 @@
+from django.core.files import File
+from PIL import Image
+from io import BytesIO
+
 def resize_image(image_field, target_size=(640, 480)):
         img = Image.open(image_field)
         img = img.convert('RGB')  # Убедитесь, что изображение в формате RGB

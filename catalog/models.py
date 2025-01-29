@@ -25,7 +25,7 @@ class Category(TranslatableModel):
     def save(self, *args, **kwargs):
         # Обрезаем изображение перед сохранением
         if self.image:
-            self.image = resize_image(self.image, (640, 480))
+            self.thumbnail = resize_image(self.image, (640, 480))
         
         # Сначала сохраняем объект, чтобы получить первичный ключ (ID)
         super(Category, self).save(*args, **kwargs)
@@ -75,7 +75,7 @@ class Product(TranslatableModel):
     def save(self, *args, **kwargs):
         # Обрезаем изображение перед сохранением
         if self.image:
-            self.image = resize_image(self.image, (640, 480))
+            self.thumbnail = resize_image(self.image, (640, 480))
         
         # Сначала сохраняем объект, чтобы получить первичный ключ (ID)
         super(Product, self).save(*args, **kwargs)
