@@ -78,5 +78,5 @@ class Product(TranslatableModel):
             self.thumbnail = resize_image(self.image, (640, 480))
             super(Product, self).save(update_fields=['thumbnail'])  # Обновляем только thumbnail
 
-        def __str__(self):
-            return self.safe_translation_getter('name', any_language=True)
+    def __str__(self):
+        return self.safe_translation_getter('name', any_language=True)
