@@ -34,7 +34,9 @@ class Category(TranslatableModel):
 
 
     def __str__(self):
-        return self.safe_translation_getter('name', any_language=True)
+        if self.safe_translation_getter('name', any_language=True):
+            return self.safe_translation_getter('name', any_language=True)
+        return self.id
 
 class Manufacturer(TranslatableModel):
     class Meta:
@@ -47,7 +49,9 @@ class Manufacturer(TranslatableModel):
     )
 
     def __str__(self):
-        return self.safe_translation_getter('name', any_language=True)
+        if self.safe_translation_getter('name', any_language=True):
+            return self.safe_translation_getter('name', any_language=True)
+        return self.id
 
 
 class Product(TranslatableModel):
@@ -79,4 +83,6 @@ class Product(TranslatableModel):
             super(Product, self).save(update_fields=['thumbnail'])  # Обновляем только thumbnail
 
     def __str__(self):
-        return self.safe_translation_getter('name', any_language=True)
+        if self.safe_translation_getter('name', any_language=True):
+            return self.safe_translation_getter('name', any_language=True)
+        return self.id
